@@ -323,16 +323,34 @@ function imeType(query, onDone) {
   next();
 }
 
-// Execute search (with click animation + taunt overlay)
+// Query param (base64)
+const qParam = (() => {
+  const v = new URLSearchParams(location.search).get('q');
+  if (!v) return null;
+  try {
+    let b64 = v.replace(/\s/g, '+');
+    return decodeURIComponent(escape(atob(b64)));
+  } catch { return null; }
+})();
+
+// Execute search
 function doSearch() {
   const q = input.value.trim();
   if (!q) return;
+
+  // No param: redirect to self with base64-encoded query to start auto-play demo
+  if (!qParam) {
+    const b64 = btoa(unescape(encodeURIComponent(q)));
+    window.location.href = '?q=' + b64;
+    return;
+  }
+
+  // Has param: auto-play flow with button click animation + taunt overlay
   setStep(3);
   showGuide('<span class="tag">第三步</span>点击搜索 <span class="hl">"' + q + '"</span>');
   goBtn.classList.remove('enabled');
   suggestions.style.display = 'none';
 
-  // Animate button click
   goBtn.style.transition = 'transform .1s, background .1s';
   goBtn.style.transform = 'scale(.92)';
   goBtn.style.background = '#005a9e';
@@ -342,7 +360,6 @@ function doSearch() {
     goBtn.style.transition = '';
   }, 200);
 
-  // Show full-screen taunt after brief pause
   setTimeout(() => {
     showTauntOverlay(q);
   }, 800);
@@ -411,16 +428,6 @@ function autoPlay(query) {
     }, 1000);
   });
 }
-
-// Query param (base64)
-const qParam = (() => {
-  const v = new URLSearchParams(location.search).get('q');
-  if (!v) return null;
-  try {
-    let b64 = v.replace(/\s/g, '+');
-    return decodeURIComponent(escape(atob(b64)));
-  } catch { return null; }
-})();
 
 // Events
 input.addEventListener('focus', () => {
