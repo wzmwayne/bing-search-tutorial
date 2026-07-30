@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Search - Microsoft Bing</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; width: 100%; font-family: 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif; background: #000; overflow: hidden; }
+
+.loading-cover {
+  position: fixed; inset: 0; z-index: 1000;
+  background: #1a1a2e;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity .8s;
+}
+.loading-cover.hide { opacity: 0; pointer-events: none; }
+.loading-cover .frame {
+  background: #2a2a3e; border-radius: 16px 16px 0 0;
+  width: 720px; max-width: 90vw; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.5);
+}
+.loading-cover .bar {
+  background: #3a3a4e; padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.loading-cover .dots { display: flex; gap: 7px; }
+.loading-cover .dots span { width: 12px; height: 12px; border-radius: 50%; }
+.loading-cover .dots span:nth-child(1) { background: #ff5f57; }
+.loading-cover .dots span:nth-child(2) { background: #ffbd2e; }
+.loading-cover .dots span:nth-child(3) { background: #28c840; }
+.loading-cover .addr {
+  flex: 1; background: #1a1a2e; padding: 7px 14px; border-radius: 6px;
+  font-size: 14px; color: #ccc; font-family: monospace; min-height: 32px;
+}
+.loading-cover .hint {
+  color: rgba(255,255,255,.4); font-size: 13px; margin-top: 20px;
+}
+
+.main-page {
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  opacity: 0; transition: opacity .8s;
+}
+.main-page.show { opacity: 1; }
+
+.bg-cover {
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.40) 0%, rgba(0,0,0,.15) 50%, rgba(0,0,0,.60) 100%),
+    url('https://cn.bing.com/th?id=OHR.NavajoNation_ZH-CN9274387505_1920x1080.webp') center/cover no-repeat;
+}
+.bg-gradient {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(0,77,64,.25) 0%, transparent 40%, rgba(0,77,64,.35) 100%);
+}
+
+header {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 32px;
+}
+header .left { display: flex; align-items: center; gap: 28px; }
+header nav { display: flex; gap: 22px; }
+header nav a { color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; cursor: default; }
+header nav a:hover { color: #fff; }
+header .right { display: flex; align-items: center; gap: 14px; color: rgba(255,255,255,.7); font-size: 13px; }
+header .right .signin { color: #fff; padding: 5px 14px; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; }
+
+.center {
+  position: relative; z-index: 10;
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 0 32px 10vh;
+}
+
+.sbox {
+  width: 100%; max-width: 600px;
+  background: #fff; border-radius: 8px;
+  display: flex; align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+}
+.sbox:focus-within { box-shadow: 0 4px 30px rgba(0,0,0,.35); }
+.sbox .mag { padding: 0 0 0 16px; color: #888; font-size: 16px; }
+.sbox input {
+  flex: 1; border: none; padding: 14px 10px;
+  font-size: 16px; outline: none; font-family: inherit; color: #333;
+}
+.sbox .gobtn {
+  background: #0078d4; color: #fff; border: none;
+  padding: 14px 28px; font-size: 15px; cursor: pointer;
+  font-family: inherit; transition: .3s;
+  opacity: .6; pointer-events: none;
+}
+.sbox .gobtn.enabled { opacity: 1; pointer-events: auto; }
+.sbox .gobtn.enabled:hover { background: #106ebe; }
+
+.guide {
+  position: relative; z-index: 10; text-align: center;
+  margin-top: 28px; min-height: 76px; line-height: 1.8;
+  font-size: 22px; color: #fff;
+  text-shadow: 0 1px 10px rgba(0,0,0,.6);
+  max-width: 640px;
+}
+.guide .tag {
+  display: inline-block; background: #0078d4;
+  padding: 4px 18px; border-radius: 20px;
+  font-size: 15px; font-weight: 700; margin-right: 10px;
+}
+.guide .hl {
+  font-weight: 600; background: rgba(255,255,255,.15);
+  padding: 2px 14px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.guide small {
+  display: block; font-size: 15px;
+  color: rgba(255,255,255,.5); margin-top: 8px; text-shadow: none;
+}
+
+.suggestions {
+  position: relative; z-index: 10;
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 18px; justify-content: center;
+}
+.suggestions span {
+  background: rgba(255,255,255,.1); color: rgba(255,255,255,.7);
+  padding: 6px 18px; border-radius: 18px;
+  font-size: 14px; cursor: pointer; transition: .2s;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.suggestions span:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+.step-dots {
+  position: relative; z-index: 10;
+  display: flex; gap: 8px; margin-bottom: 20px;
+}
+.step-dots .dot {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,.2); transition: .8s;
+}
+.step-dots .dot.active { background: #fff; width: 50px; }
+.step-dots .dot .lbl {
+  display: block; text-align: center;
+  font-size: 11px; color: rgba(255,255,255,.3); margin-top: 6px;
+}
+.step-dots .dot.active .lbl { color: rgba(255,255,255,.7); }
+
+.redirect-note { position: relative; z-index: 10; margin-top: 16px; font-size: 14px; color: rgba(255,255,255,.45); display: none; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseBtn { 0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,120,212,.5)} 50%{transform:scale(1.06);box-shadow:0 0 20px 6px rgba(0,120,212,.3)} }
+.fade-up { animation: fadeUp .5s ease-out; }
+
+.bottom-bar {
+  position: relative; z-index: 10;
+  padding: 12px 32px; display: flex; justify-content: space-between;
+  font-size: 12px; color: rgba(255,255,255,.3);
+}
+.bottom-bar a { color: rgba(255,255,255,.3); text-decoration: none; margin-left: 16px; cursor: default; }
+.bottom-bar a:hover { color: rgba(255,255,255,.5); }
+.bottom-bar .left a:first-child { margin-left: 0; }
+</style>
+</head>
+<body>
+
+<div class="loading-cover" id="loadingCover">
+  <div class="frame">
+    <div class="bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="addr" id="addrBar"></div>
+    </div>
+  </div>
+  <div class="hint">第一步：打开 Bing 搜索页面</div>
+</div>
+
+<div class="main-page" id="mainPage">
+  <div class="bg-cover"></div>
+  <div class="bg-gradient"></div>
+
+  <header>
+    <div class="left">
+      <svg height="26" viewBox="0 0 154 28" style="display:block">
+        <g><path fill="#f26522" d="M11.4 0H0v11.4h11.4z"/><path fill="#8dc63f" d="M23.9 0H12.5v11.4H24z"/><path fill="#00aeef" d="M11.4 12.5H0V24h11.4z"/><path fill="#ffc20e" d="M23.9 12.5H12.5V24H24z"/></g>
+        <path fill="#fff" d="M46.6 4.8V19H44V7.9L39.5 19h-1.7L33.4 7.9V19H31V4.8h3.6l4.1 10.6 4.4-10.6zm2 1q0-.5.5-1 .4-.3 1-.3 1 0 1.5 1.4 0 .6-.5 1t-1 .4q-.8 0-1-.4-.5-.5-.5-1m2.7 3v10.3h-2.4V8.8zm7.3 8.5q.6 0 1.2-.2l1.2-.7v2.3l-1.3.5-1.6.2a5 5 0 0 1-3.7-1.5 5 5 0 0 1-1.4-3.6q0-2.5 1.5-4.1t4-1.6a6 6 0 0 1 2.5.6v2.3l-1.1-.7-1.2-.2q-1.5 0-2.3 1c-.8 1-.9 1.4-.9 2.4q0 1.6.9 2.5a3 3 0 0 0 2.3.8M68 8.7l1 .1v2.4a3 3 0 0 0-1.5-.4q-.9 0-1.5.8c-.6.8-.6 1.3-.6 2.3v5.2h-2.5V8.8h2.5v1.6q.3-.8 1-1.3t1.6-.4zm1 5.4q0-2.5 1.5-4 1.5-1.5 2.3-1.5t4 1.5q1.4 1.4 1.4 3.9 0 2.5-1.4 4a5 5 0 0 1-4 1.4q-2.3 0-3.7-1.4a5 5 0 0 1-1.5-3.8m2.6 0q0 1.5.7 2.4.7.9 1.2.9t2-.8q.8-.9.8-2.4 0-1.6-.8-2.5-.7-.9-1.2-.9t-2 .8q-.7.9-.7 2.5"/>
+      </svg>
+      <nav><a>图片</a><a>视频</a><a>翻译</a><a>学术</a><a>词典</a></nav>
+    </div>
+    <div class="right">
+      <span>奖励</span>
+      <span>设置</span>
+      <span class="signin">登录</span>
+    </div>
+  </header>
+
+  <div class="center">
+    <div class="step-dots" id="stepDots">
+      <div class="dot active"><span class="lbl">打开 Bing</span></div>
+      <div class="dot"><span class="lbl">输入关键词</span></div>
+      <div class="dot"><span class="lbl">开始搜索</span></div>
+    </div>
+
+    <div class="guide" id="guide"></div>
+
+    <div class="sbox" id="sbox">
+      <span class="mag">搜索</span>
+      <input id="searchInput" placeholder="输入搜索词..." autofocus>
+      <button class="gobtn" id="goBtn">搜索</button>
+    </div>
+
+    <div class="suggestions" id="suggestions">
+      <span>今天天气怎么样</span>
+      <span>如何学习 JavaScript</span>
+      <span>最新科技新闻</span>
+      <span>附近有什么好吃的</span>
+    </div>
+
+    <div class="redirect-note" id="redirectNote">正在打开 Bing 搜索结果...</div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="left">
+      <a>隐私与 Cookie</a><a>法律声明</a><a>广告</a><a>关于我们</a><a>帮助</a><a>反馈</a>
+    </div>
+    <div>2026 Microsoft</div>
+  </div>
+</div>
+
+<script>
+const C = document.getElementById.bind(document);
+const loadingCover = C('loadingCover');
+const addrBar = C('addrBar');
+const mainPage = C('mainPage');
+const stepDots = C('stepDots');
+const guide = C('guide');
+const input = C('searchInput');
+const goBtn = C('goBtn');
+const suggestions = C('suggestions');
+const redirectNote = C('redirectNote');
+let step = 0, autoPlaying = false;
+
+function setStep(s) {
+  step = s;
+  stepDots.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i < s));
+}
+function showGuide(h) {
+  guide.innerHTML = h;
+  guide.classList.remove('fade-up');
+  void guide.offsetWidth;
+  guide.classList.add('fade-up');
+}
+
+// Typing helper
+function typeText(elem, text, speed, cb) {
+  let i = 0;
+  function t() {
+    if (i < text.length) {
+      elem.textContent = text.slice(0, i + 1);
+      i++;
+      setTimeout(t, speed + Math.random() * (speed * 0.5));
+    } else { if (cb) setTimeout(cb, 300); }
+  }
+  t();
+}
+
+// Pinyin map
+const pyMap = {
+  '今':'jin','天':'tian','气':'qi','怎':'zen','么':'me','样':'yang',
+  '如':'ru','何':'he','学':'xue','习':'xi','最':'zui','新':'xin',
+  '科':'ke','技':'ji','闻':'wen','附':'fu','近':'jin','有':'you',
+  '什':'shen','好':'hao','吃':'chi','的':'de','暖':'nuan','男':'nan',
+  '女':'nv','朋':'peng','友':'you','电':'dian','脑':'nao','手':'shou',
+  '机':'ji','中':'zhong','国':'guo','大':'da','小':'xiao',
+  '是':'shi','不':'bu','我':'wo','你':'ni','他':'ta',
+  '一':'yi','二':'er','三':'san','四':'si','五':'wu',
+  '上':'shang','下':'xia','来':'lai','去':'qu','欢':'huan','迎':'ying',
+  '关':'guan','注':'zhu','世':'shi','界':'jie','人':'ren','生':'sheng',
+  '活':'huo','日':'ri','月':'yue','年':'nian','星':'xing','期':'qi',
+  '春':'chun','夏':'xia','秋':'qiu','冬':'dong','高':'gao','兴':'xing',
+  '喝':'he','玩':'wan','乐':'le','这':'zhe','那':'na','哪':'na',
+  '多':'duo','少':'shao','快':'kuai','慢':'man','热':'re','冷':'leng',
+  '开':'kai','始':'shi','结':'jie','束':'shu','美':'mei','食':'shi',
+  '旅':'lv','行':'xing','音':'yin','体':'ti','育':'yu','运':'yun','动':'dong',
+};
+
+function isCN(c) { return c >= '\u4e00' && c <= '\u9fff'; }
+function getPy(c) { return pyMap[c] || (isCN(c) ? '??' : null); }
+
+// Pinyin IME simulation
+function imeType(query, onDone) {
+  let pos = 0;
+  const items = [];
+  for (const ch of query) {
+    const py = getPy(ch);
+    if (py) items.push({ ch, py });
+    else items.push({ ch, py: null });
+  }
+
+  function next() {
+    if (pos >= items.length) { if (onDone) onDone(); return; }
+    const it = items[pos];
+    const prefix = query.slice(0, pos);
+    if (!it.py) {
+      input.value = prefix + it.ch;
+      pos++;
+      setTimeout(next, 150 + Math.random() * 100);
+    } else {
+      const py = it.py === '??' ? 'zh' : it.py;
+      let pi = 0;
+      const t = setInterval(() => {
+        if (pi < py.length) {
+          input.value = prefix + py.slice(0, pi + 1);
+          input.scrollLeft = input.scrollWidth;
+          pi++;
+        } else {
+          clearInterval(t);
+          setTimeout(() => {
+            input.value = prefix + it.ch;
+            input.scrollLeft = input.scrollWidth;
+            pos++;
+            setTimeout(next, 150);
+          }, 300);
+        }
+      }, 100);
+    }
+  }
+  next();
+}
+
+// Execute search (with click animation + taunt overlay)
+function doSearch() {
+  const q = input.value.trim();
+  if (!q) return;
+  setStep(3);
+  showGuide('<span class="tag">第三步</span>点击搜索 <span class="hl">"' + q + '"</span>');
+  goBtn.classList.remove('enabled');
+  suggestions.style.display = 'none';
+
+  // Animate button click
+  goBtn.style.transition = 'transform .1s, background .1s';
+  goBtn.style.transform = 'scale(.92)';
+  goBtn.style.background = '#005a9e';
+  setTimeout(() => {
+    goBtn.style.transform = '';
+    goBtn.style.background = '';
+    goBtn.style.transition = '';
+  }, 200);
+
+  // Show full-screen taunt after brief pause
+  setTimeout(() => {
+    showTauntOverlay(q);
+  }, 800);
+}
+
+function showTauntOverlay(q) {
+  const overlay = document.createElement('div');
+  overlay.id = 'tauntOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fi .5s';
+  overlay.innerHTML = `
+    <div style="font-size:clamp(24px,5vw,48px);color:#ff2222;font-weight:900;text-align:center;line-height:1.8;text-shadow:0 0 40px rgba(255,0,0,.4),0 0 80px rgba(255,0,0,.2);max-width:90vw;letter-spacing:2px;animation:pulseText 2s ease-in-out infinite">
+      这对于你而言<br>就是如此的困难吗？
+    </div>
+    <div style="margin-top:30px;font-size:14px;color:rgba(255,255,255,.25)">点击任意处跳转搜索结果</div>
+  `;
+  // Add keyframe for pulseText if not exists
+  if (!document.getElementById('pulseKeyframes')) {
+    const s = document.createElement('style');
+    s.id = 'pulseKeyframes';
+    s.textContent = '@keyframes pulseText { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.85;transform:scale(1.04)} } @keyframes fi { from{opacity:0} to{opacity:1} }';
+    document.head.appendChild(s);
+  }
+  overlay.onclick = function() {
+    document.body.removeChild(overlay);
+    window.location.href = 'https://cn.bing.com/search?q=' + encodeURIComponent(q);
+  };
+  setTimeout(() => {
+    if (document.getElementById('tauntOverlay')) {
+      document.body.removeChild(overlay);
+      window.location.href = 'https://cn.bing.com/search?q=' + encodeURIComponent(q);
+    }
+  }, 5000);
+  document.body.appendChild(overlay);
+}
+
+// Auto play
+function autoPlay(query) {
+  autoPlaying = true;
+  const url = 'https://cn.bing.com';
+
+  // Step 1: type URL in loading cover (>= 3s)
+  typeText(addrBar, url, 130, () => {
+    loadingCover.classList.add('hide');
+    mainPage.classList.add('show');
+    setStep(1);
+    showGuide('<span class="tag">第一步</span>打开 <span class="hl">Bing</span> 搜索网站');
+
+    // Step 2: type query with pinyin IME
+    setTimeout(() => {
+      setStep(2);
+      showGuide('<span class="tag">第二步</span>输入想要搜索的关键词 <span class="hl">"' + query + '"</span> <small>在搜索框中输入你想查的内容</small>');
+      input.focus();
+
+      imeType(query, () => {
+        setStep(2);
+        goBtn.classList.add('enabled');
+        showGuide('<span class="tag">第二步</span>关键词已输入 <span class="hl">"' + query + '"</span> <small>现在点击搜索按钮</small>');
+        // Pulse the button
+        goBtn.style.animation = 'pulseBtn 1s ease-in-out 3';
+        // Auto-click after 3s
+        setTimeout(() => {
+          goBtn.style.animation = '';
+          doSearch();
+        }, 3500);
+      });
+    }, 1000);
+  });
+}
+
+// Query param (base64)
+const qParam = (() => {
+  const v = new URLSearchParams(location.search).get('q');
+  if (!v) return null;
+  try {
+    let b64 = v.replace(/\s/g, '+');
+    return decodeURIComponent(escape(atob(b64)));
+  } catch { return null; }
+})();
+
+// Events
+input.addEventListener('focus', () => {
+  if (autoPlaying) return;
+  if (step === 1) { setStep(2); showGuide('<span class="tag">第二步</span>在搜索框中输入搜索关键词'); }
+});
+input.addEventListener('input', () => { if (!autoPlaying) goBtn.classList.toggle('enabled', input.value.trim().length > 0); });
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && input.value.trim() && !autoPlaying) doSearch(); });
+goBtn.addEventListener('click', doSearch);
+suggestions.addEventListener('click', (e) => {
+  if (e.target.tagName !== 'SPAN') return;
+  input.value = e.target.textContent;
+  goBtn.classList.add('enabled');
+  if (step === 1) { setStep(2); showGuide('<span class="tag">第二步</span>在搜索框中输入搜索关键词'); }
+  input.focus();
+});
+
+// Init
+if (qParam) {
+  autoPlay(qParam);
+} else {
+  typeText(addrBar, 'https://cn.bing.com', 60, () => {
+    loadingCover.classList.add('hide');
+    mainPage.classList.add('show');
+    setStep(1);
+    showGuide('<span class="tag">第一步</span>打开 <span class="hl">Bing</span> 搜索网站，开始输入关键词吧');
+  });
+}
+</script>
+</body>
+</html>
