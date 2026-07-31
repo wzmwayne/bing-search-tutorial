@@ -277,10 +277,99 @@ const pyMap = {
   '多':'duo','少':'shao','快':'kuai','慢':'man','热':'re','冷':'leng',
   '开':'kai','始':'shi','结':'jie','束':'shu','美':'mei','食':'shi',
   '旅':'lv','行':'xing','音':'yin','体':'ti','育':'yu','运':'yun','动':'dong',
+  '爱':'ai','爸':'ba','杯':'bei','本':'ben','比':'bi','别':'bie',
+  '才':'cai','层':'ceng','茶':'cha','长':'chang','车':'che','成':'cheng',
+  '出':'chu','处':'chu','春':'chun','从':'cong','错':'cuo','打':'da',
+  '但':'dan','当':'dang','到':'dao','得':'de','等':'deng','地':'di',
+  '点':'dian','东':'dong','都':'dou','对':'dui','多':'duo','儿':'er',
+  '发':'fa','法':'fa','反':'fan','方':'fang','房':'fang','非':'fei',
+  '分':'fen','风':'feng','服':'fu','感':'gan','干':'gan','刚':'gang',
+  '告':'gao','跟':'gen','更':'geng','工':'gong','公':'gong','狗':'gou',
+  '够':'gou','古':'gu','故':'gu','顾':'gu','挂':'gua','怪':'guai',
+  '关':'guan','观':'guan','管':'guan','光':'guang','广':'guang',
+  '贵':'gui','果':'guo','过':'guo','海':'hai','害':'hai','汉':'han',
+  '航':'hang','毫':'hao','号':'hao','和':'he','黑':'hei','很':'hen',
+  '红':'hong','后':'hou','花':'hua','画':'hua','话':'hua','化':'hua',
+  '坏':'huai','还':'hai','环':'huan','回':'hui','会':'hui','婚':'hun',
+  '火':'huo','或':'huo','基':'ji','家':'jia','假':'jia','价':'jia',
+  '间':'jian','检':'jian','见':'jian','件':'jian','建':'jian','江':'jiang',
+  '讲':'jiang','教':'jiao','叫':'jiao','觉':'jue','接':'jie','街':'jie',
+  '姐':'jie','解':'jie','金':'jin','进':'jin','经':'jing','精':'jing',
+  '警':'jing','静':'jing','九':'jiu','旧':'jiu','就':'jiu','举':'ju',
+  '句':'ju','具':'ju','觉':'jue','开':'kai','可':'ke','客':'ke',
+  '课':'ke','空':'kong','口':'kou','哭':'ku','苦':'ku','块':'kuai',
+  '快':'kuai','宽':'kuan','况':'kuang','累':'lei','老':'lao','了':'le',
+  '离':'li','里':'li','理':'li','力':'li','立':'li','利':'li',
+  '连':'lian','脸':'lian','练':'lian','凉':'liang','两':'liang','量':'liang',
+  '亮':'liang','了':'liao','列':'lie','林':'lin','领':'ling','另':'ling',
+  '留':'liu','流':'liu','六':'liu','龙':'long','楼':'lou','路':'lu',
+  '录':'lu','绿':'lv','乱':'luan','论':'lun','落':'luo','妈':'ma',
+  '马':'ma','吗':'ma','买':'mai','卖':'mai','满':'man','忙':'mang',
+  '毛':'mao','没':'mei','每':'mei','门':'men','们':'men','梦':'meng',
+  '米':'mi','面':'mian','明':'ming','名':'ming','命':'ming','摸':'mo',
+  '末':'mo','某':'mou','母':'mu','目':'mu','拿':'na','那':'na',
+  '奶':'nai','南':'nan','难':'nan','呢':'ne','内':'nei','能':'neng',
+  '你':'ni','年':'nian','念':'nian','娘':'niang','您':'nin','牛':'niu',
+  '农':'nong','女':'nv','欧':'ou','爬':'pa','怕':'pa','排':'pai',
+  '旁':'pang','跑':'pao','配':'pei','碰':'peng','皮':'pi','片':'pian',
+  '票':'piao','漂':'piao','品':'pin','平':'ping','评':'ping','破':'po',
+  '七':'qi','期':'qi','其':'qi','起':'qi','千':'qian','前':'qian',
+  '钱':'qian','墙':'qiang','亲':'qin','轻':'qing','情':'qing','请':'qing',
+  '晴':'qing','秋':'qiu','求':'qiu','区':'qu','取':'qu','去':'qu',
+  '全':'quan','却':'que','让':'rang','热':'re','人':'ren','认':'ren',
+  '任':'ren','日':'ri','容':'rong','肉':'rou','如':'ru','入':'ru',
+  '三':'san','色':'se','山':'shan','上':'shang','少':'shao','社':'she',
+  '谁':'shei','身':'shen','深':'shen','神':'shen','声':'sheng','省':'sheng',
+  '剩':'sheng','师':'shi','十':'shi','时':'shi','实':'shi','识':'shi',
+  '史':'shi','使':'shi','始':'shi','事':'shi','市':'shi','室':'shi',
+  '收':'shou','手':'shou','书':'shu','输':'shu','数':'shu','水':'shui',
+  '睡':'shui','说':'shuo','思':'si','四':'si','送':'song','苏':'su',
+  '算':'suan','虽':'sui','岁':'sui','所':'suo','他':'ta','它':'ta',
+  '她':'ta','太':'tai','谈':'tan','汤':'tang','堂':'tang','特':'te',
+  '疼':'teng','题':'ti','提':'ti','天':'tian','甜':'tian','填':'tian',
+  '条':'tiao','跳':'tiao','听':'ting','庭':'ting','停':'ting','通':'tong',
+  '同':'tong','头':'tou','图':'tu','土':'tu','推':'tui','腿':'tui',
+  '退':'tui','托':'tuo','外':'wai','完':'wan','晚':'wan','万':'wan',
+  '王':'wang','往':'wang','忘':'wang','望':'wang','为':'wei','围':'wei',
+  '位':'wei','味':'wei','文':'wen','闻':'wen','问':'wen','我':'wo',
+  '无':'wu','五':'wu','午':'wu','物':'wu','误':'wu','西':'xi',
+  '吸':'xi','希':'xi','息':'xi','习':'xi','喜':'xi','细':'xi',
+  '下':'xia','先':'xian','现':'xian','线':'xian','相':'xiang','香':'xiang',
+  '想':'xiang','响':'xiang','向':'xiang','项':'xiang','像':'xiang',
+  '小':'xiao','校':'xiao','笑':'xiao','写':'xie','谢':'xie','心':'xin',
+  '信':'xin','星':'xing','醒':'xing','行':'xing','性':'xing','姓':'xing',
+  '兴':'xing','幸':'xing','休':'xiu','需':'xu','许':'xu','学':'xue',
+  '雪':'xue','血':'xue','寻':'xun','压':'ya','呀':'ya','牙':'ya',
+  '亚':'ya','言':'yan','眼':'yan','演':'yan','验':'yan','羊':'yang',
+  '阳':'yang','样':'yang','要':'yao','药':'yao','也':'ye','业':'ye',
+  '叶':'ye','夜':'ye','一':'yi','医':'yi','衣':'yi','依':'yi',
+  '移':'yi','已':'yi','以':'yi','意':'yi','义':'yi','易':'yi',
+  '因':'yin','音':'yin','银':'yin','引':'yin','应':'ying','英':'ying',
+  '迎':'ying','影':'ying','硬':'ying','用':'yong','优':'you','游':'you',
+  '友':'you','右':'you','又':'you','于':'yu','鱼':'yu','雨':'yu',
+  '语':'yu','预':'yu','遇':'yu','原':'yuan','远':'yuan','院':'yuan',
+  '愿':'yuan','月':'yue','越':'yue','云':'yun','运':'yun','杂':'za',
+  '在':'zai','再':'zai','早':'zao','造':'zao','怎':'zen','增':'zeng',
+  '展':'zhan','站':'zhan','张':'zhang','掌':'zhang','找':'zhao','照':'zhao',
+  '这':'zhe','真':'zhen','正':'zheng','证':'zheng','之':'zhi','支':'zhi',
+  '知':'zhi','直':'zhi','值':'zhi','只':'zhi','指':'zhi','制':'zhi',
+  '中':'zhong','重':'zhong','种':'zhong','周':'zhou','主':'zhu','住':'zhu',
+  '助':'zhu','祝':'zhu','装':'zhuang','状':'zhuang','准':'zhun','自':'zi',
+  '字':'zi','子':'zi','总':'zong','走':'zou','最':'zui','昨':'zuo','作':'zuo','坐':'zuo','做':'zuo',
 };
 
 function isCN(c) { return c >= '\u4e00' && c <= '\u9fff'; }
 function getPy(c) { return pyMap[c] || (isCN(c) ? '??' : null); }
+
+// Fallback pinyin pool for characters not in the map (keeps IME demo realistic)
+const fallbackPy = ['zi','zhong','sheng','feng','rui','ming','an','wei','yu','guang','qin','yi','lan','ning','chen','jing','bo','fang','hao','yuan','ke','xuan','ling','jun','jie','ruo','yan','sen']; 
+function getPinyinFor(ch) {
+  const p = getPy(ch);
+  if (p !== '??') return p;
+  let h = 0;
+  for (let i = 0; i < ch.length; i++) h = (h * 31 + ch.charCodeAt(i)) >>> 0;
+  return fallbackPy[h % fallbackPy.length];
+}
 
 // Pinyin IME simulation
 function imeType(query, onDone) {
@@ -288,7 +377,7 @@ function imeType(query, onDone) {
   const items = [];
   for (const ch of query) {
     const py = getPy(ch);
-    if (py) items.push({ ch, py });
+    if (py) items.push({ ch, py: getPinyinFor(ch) });
     else items.push({ ch, py: null });
   }
 
@@ -301,7 +390,7 @@ function imeType(query, onDone) {
       pos++;
       setTimeout(next, 150 + Math.random() * 100);
     } else {
-      const py = it.py === '??' ? 'zh' : it.py;
+      const py = it.py;
       let pi = 0;
       const t = setInterval(() => {
         if (pi < py.length) {
